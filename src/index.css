@@ -1,28 +1,23 @@
-:root {
-  --color-text: #171a22;     
-   /* css  variable*/
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #171a22;
+  /* css  variable*/
   --color-muted: #68707f;
   --color-background: #f6f3ea;
   --color-surface: #fffdf8;
   --color-primary: #2447e8;
   --color-primary-dark: #1836bd;
   --color-accent: #ff6542;
-
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: var(--color-text);
-  background-color: var(--color-background);
-}
-* {
-  box-sizing: border-box;
 }
 html {
   scroll-behavior: smooth;
 }
 body {
-  margin: 0;
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--color-background);
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 button,
 input,
@@ -35,44 +30,4 @@ button {
 }
 #root {
   min-height: 100vh;
-}
-.welcome-screen {
-  min-height: 100vh;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-.webbrow {
-  color: var(--color-primary);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-.welcome-screen h1 {
-  margin: 14px 0 8px;
-  color: var(--color-text);
-  font-size: clamp(52px, 9vw, 96px);
-  line-height: 1;
-  letter-spacing: -5px;
-}
-.welcome-text{
-  margin: 0 0 28px;
-  color: var(--color-muted);
-  font-size: 18px;
-}
-.primary-button{
-  padding: 14px 22px;
-  border: none;
-  border-radius: 8px;
-  background-color: var(--color-primary);
-  color: white;
-  font-weight: 700;
-  transition: 0.2s ease;
-}
-.primary-button:hover{
-  background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
 }
