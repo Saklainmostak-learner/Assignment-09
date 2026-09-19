@@ -1,13 +1,13 @@
-function App() {
-  const projectName = "PlayGrid";
-  return (
-    <main className="welcome-screen">
-      <span className="eyebrow"> MERN STACK PROJECT</span>
+import { Route, Routes } from "react-router";
+import Home from "./pages/Home";
+import Facilities from "./pages/Facilities";
 
-      <h1>{projectName}</h1>
-      <p className="welcome-text">Sports Facility Booking Management System</p>
-      <button className="primary-button">Explore Facilities</button>
-    </main>
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/facilities" element={<Facilities />} />
+    </Routes>
   );
 }
 export default App;
