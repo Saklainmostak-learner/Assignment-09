@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 const FacilityCard = ({ facility }) => {
   const {
+    id,
     name,
     facility_type,
     image,
@@ -61,7 +62,7 @@ const FacilityCard = ({ facility }) => {
           {description}
         </p>
         <Link
-          to="/login"
+          to={`/facility/${id}`}
           className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-primary"
         >
           Book Now
