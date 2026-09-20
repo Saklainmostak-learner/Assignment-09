@@ -1,5 +1,6 @@
 
 import BookingFunctionality from "../components/BookingFunctionality";
+import ChoosePlayGrid from "../components/ChoosePlayGrid";
 import FeatureFacilities from "../components/FeatureFacilities";
 import Hero from "../components/Hero";
 
@@ -9,6 +10,7 @@ const Home = () => {
       <Hero/>
       <FeatureFacilities/>
       <BookingFunctionality/>
+      <ChoosePlayGrid/>
     </main>
 
   );
