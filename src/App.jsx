@@ -5,9 +5,13 @@ import Login from "./pages/Login";
 import MainLayout from "./layouts/MainLayout";
 import FacilityDetails from "./pages/FacilityDetails";
 import NotFound from "./pages/NotFound";
+import { Suspense } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
   return (
+    <Suspense fallback={<LoadingSpinner/>}>
+
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
@@ -17,6 +21,7 @@ function App() {
         <Route path="*" element={<NotFound/>}/>
       </Route>
     </Routes>
+    </Suspense>
   );
 }
 export default App;
