@@ -7,6 +7,7 @@ import FacilityDetails from "./pages/FacilityDetails";
 import NotFound from "./pages/NotFound";
 import { Suspense } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/facilities" element={<Facilities />} />
         <Route path="/facility/:id" element={<FacilityDetails/>}/>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register/>}/>
         <Route path="*" element={<NotFound/>}/>
       </Route>
     </Routes>
