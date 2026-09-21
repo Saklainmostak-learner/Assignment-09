@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { featuredFacilities } from "../data/facilities";
+import useFacilities from "../hooks/useFacilities";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { Search } from "lucide-react";
 import FacilityCard from "../components/FacilityCard";
 
-const typeOfSports = [
-  ...new Set(featuredFacilities.map((facility) => facility.facility_type)),
-];
 const Facilities = () => {
   const [searchFiled, setSearchFiled] = useState("");
 
   const [selectedType, setSelectedType] = useState([]);
-
+  const { facilities, facilityTypes, loading, error } = useFacilities(
+    searchFiled,
+    selectedType,
+  );
   const toggleSport = (sportType) => {
     setSelectedType((presentType) => {
       const isAlreadySelected = presentType.includes(sportType);
@@ -26,19 +27,33 @@ const Facilities = () => {
     setSelectedType([]);
   };
 
-  const facilitiesFilter = featuredFacilities.filter((facility) => {
-    const normalizeSearch = searchFiled.trim().toLowerCase();
-
-    const matchSearch = facility.name.toLowerCase().includes(normalizeSearch);
-
-    const matchSport =
-      selectedType.length === 0 ||
-      selectedType.includes(facility.facility_type);
-
-    return matchSearch && matchSport;
-  });
-
   const isActiveFilter = searchFiled.trim() !== "" || selectedType.length > 0;
+
+  if (loading && facilities.length === 0) {
+    return <LoadingSpinner message="Finding available playing spaces..." />;
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto grid min-h-[60vh] max-w-6xl place-items-center px-4 py-16">
+        <div className="max-w-lg rounded-3xl border border-red-200 bg-red-50 p-8 text-center">
+          <h1 className="text-2xl font-black text-red-950">
+            Facilities unavailable
+          </h1>
+
+          <p className="mt-3 leading-7 text-red-800">{error}</p>
+
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-6 rounded-xl bg-primary px-5 py-3 font-bold text-white"
+          >
+            Try again
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background">
@@ -89,7 +104,7 @@ const Facilities = () => {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                {typeOfSports.map((sportType) => {
+                {facilityTypes.map((sportType) => {
                   const isSelected = selectedType.includes(sportType);
 
                   return (
@@ -114,9 +129,8 @@ const Facilities = () => {
           <div className="mt-10 flex items-center justify-between gap-4">
             <div>
               <p className="font-bold text-ink">
-                {facilitiesFilter.length}{" "}
-                {facilitiesFilter.length === 1 ? "facility" : "facilities"}{" "}
-                found
+                {facilities.length}{" "}
+                {facilities.length === 1 ? "facility" : "facilities"} found
               </p>
               {selectedType.length > 0 && (
                 <p className="mt-1 text-sm text-muted">
@@ -126,10 +140,13 @@ const Facilities = () => {
               )}
             </div>
           </div>
-          {facilitiesFilter.length > 0 ? (
+          {facilities.length > 0 ? (
             <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {facilitiesFilter.map((facility) => (
-                <FacilityCard key={facility.id} facility={facility} />
+              {facilities.map((facility) => (
+                <FacilityCard
+                  key={facility._id || facility.id}
+                  facility={facility}
+                />
               ))}
             </div>
           ) : (

@@ -5,6 +5,7 @@ import { Link } from "react-router";
 
 const useClass =
   "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-brand focus:ring-4 focus:ring-brand/10";
+  
 const Register = () => {
   const [visiblePassword, setVisiblePassword] = useState(false);
   const [warning, setWarning] = useState("");
