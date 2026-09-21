@@ -1,12 +1,150 @@
-const Login = () => {
-  return (
-    <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-background px-6 text-center md:min-h-[calc(100vh-4.5rem)]">
-      <span className="text-xs font-bold tracking-[0.2em] text-primary"> LOGIN FIRST</span>
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { FaGoogle } from "react-icons/fa6";
+import { Link } from "react-router";
 
-      <h1 className="my-4 text-6xl leading-none font-black tracking-[-4px] text-ink sm:text-7xl md:text-8xl">Login</h1>
-      <p className="mb-7 max-w-md text-lg leading-7 text-muted">Login from will be added here..</p>
-      <button className="rounded-lg bg-primary px-6 py-3.5 font-bold text-white no-underline transition duration-200 hover:-translate-y-0.5 hover:bg-primary-dark">Explore Facilities</button>
-    </main> 
+const useClass =
+  "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-4 focus:ring-primary/10";
+
+const Login = () => {
+  const [visiblePassword, setVisiblePassword] = useState(false);
+
+  const [warning, setWarning] = useState("");
+
+  function handleLogin(event) {
+    event.preventDefault();
+    //better auth will connect
+    setWarning("Sign-in is currently unavailable. Try later.");
+  }
+
+  function handleGoogle() {
+    //google will connect
+    setWarning("Google sign-in is unavailable.");
+  }
+  return (
+    <section className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-10 lg:grid-cols-2 lg:py-16">
+      <aside className="overflow-hidden rounded-3xl bg-primary p-7 text-white sm:p-10">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
+          Player Access
+        </p>
+        <p className="mt-6 mx-w-sm text-4xl leading-tight font-black sm:text-5xl">
+          Your next game starts here.
+        </p>
+        <p className="mt-5 mx-w-sm leading-7 text-white/85">
+          Find a place to play, plan your next session, and keep your bookings
+          together.
+        </p>
+        <div
+          aria-hidden="true"
+          className="relative mt-10 hidden aspect-4/3 rounded-2xl border border-white/30 p-5 lg:block "
+        >
+          <div className="relative h-full rounded-xl border-2 border-white/50">
+            <div className="absolute inset-y-0 left-1/2 border-1-2 border-white/50"></div>
+            <div className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2rounded-full border-2 border-white/50"></div>
+          </div>
+        </div>
+      </aside>
+      <div className="rounded-3xl border border-ink/10 bg-surface p-6 sm:p-10">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          WelCome
+        </p>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-ink sm:text-4xl">
+          Login to PlayGrid
+        </h1>
+        <p className="mt-3 leading-7 text-muted">
+          Access your booking and manage facilities.
+        </p>
+        <button
+          type="button"
+          onClick={handleGoogle}
+          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 font-semibold text-semibold text-ink transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        >
+          <FaGoogle aria-hidden="true" className="size-5" />
+          Continue with Google
+        </button>
+        <div className="my-6 flex items-center gap-4">
+          <span aria-hidden="true" className="h-px flex-1 bg-ink/10"></span>
+          <span className="text-sm text-muted">Or use Email</span>
+          <span aria-hidden="true" className="h-px flex-1 bg-ink/10"></span>
+        </div>
+        <form
+          onSubmit={handleLogin}
+          onChange={() => setWarning("")}
+          className="space-y-5"
+        >
+          <div>
+            <label
+              htmlFor="login-email"
+              className="mb-2 block text-sm font-bold text-ink"
+            >
+              Email address
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="login-email"
+              autoComplete="email"
+              placeholder="your@example.com"
+              required
+              className={useClass}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="login-password"
+              className="mb-2 block text-sm font-bold text-ink"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={visiblePassword ? "text" : "password"}
+                id="login-password"
+                name="password"
+                autoComplete="current-password"
+                placeholder="Enter password"
+                required
+                className={`${useClass} pr-14`}
+              />
+              <button
+                type="button"
+                onClick={() => setVisiblePassword((before) => !before)}
+                aria-label={visiblePassword ? "Hide password" : "Show password"}
+                aria-controls="login-password"
+                aria-pressed={visiblePassword}
+                className="absolute inset-y-1 right-1 grid w-11 place-items-center rounded-lg text-muted hover:bg-background hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
+              >
+                {visiblePassword ? (
+                  <EyeOff size={20} aria-hidden="true" />
+                ) : (
+                  <Eye size={20} aria-hidden="true" />
+                )}
+              </button>
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="min-h-12 w-full bg-primary px-5 py-3 font-bold rounded-xl text-white transition hover:bg-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          >
+            Login
+          </button>
+        </form>
+        {warning && (
+          <p
+            role="alert"
+            className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
+          >
+            {warning}
+          </p>
+        )}
+        <p className="mt-7 text-center text-sm leading-6 text-muted">New to PlayGrid{" "}
+          <Link to="/register"
+          className="font-bold text-brand underline-offset-4 hover:underline">
+            Create an account
+          </Link>
+        </p>
+      </div>
+    </section>
   );
 };
 
