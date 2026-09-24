@@ -1,16 +1,17 @@
 import { Link, useNavigate, useParams } from "react-router";
-import { featuredFacilities } from "../data/facilities";
+import useFacility from "../hooks/useFacility";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ArrowLeft, Calendar, Clock, MapPin, Users } from "lucide-react";
 
 const FacilityDetails = () => {
-  const { id } = useParams();
-
   const nothing = useNavigate();
 
-  const facility = featuredFacilities.find((item) => item.id === Number(id));
+  const { id } = useParams();
+
+  const { facility, loading, error } = useFacility(id);
 
   const [bookingDate, setBookingDate] = useState(null);
 
@@ -18,44 +19,56 @@ const FacilityDetails = () => {
 
   const [hour, setHour] = useState(1);
 
-  if (!facility) {
+  if (loading) {
+    return <LoadingSpinner message="Preparing facility details..." />;
+  }
+
+  if (error || !facility) {
     return (
-      <main className="grid min-h-[70vh] place-items-center bg-background px-4 text-center ">
-        <div>
-          <p className="text-sm font-bold tracking-wider text-primary uppercase">
-            Facility not found
-          </p>
-          <h1 className="mt-3 text-4xl font-black text-ink">
-            This playing space is unavailable
+      <main className="mx-auto grid min-h-[65vh] max-w-6xl place-items-center px-4 py-16">
+        <div className="max-w-lg rounded-3xl border border-red-200 bg-red-50 p-8 text-center">
+          <h1 className="text-2xl font-black text-red-950">
+            Facility unavailable
           </h1>
-          <p className="mt-3 text-muted">
-            The facility may have been removed or the link may be incorrect.
+
+          <p className="mt-3 leading-7 text-red-800">
+            {error || "The requested facility could not be found."}
           </p>
+
           <Link
             to="/facilities"
-            className="mt-6 inline-flex rounded-xl bg-primary px-5 py-3 font-bold text-white transition hover:bg-primary-dark"
+            className="mt-6 inline-flex rounded-xl bg-primary px-5 py-3 font-bold text-white"
           >
-            Back to Facilities
+            Browse Facilities
           </Link>
         </div>
       </main>
     );
   }
 
-  const priceSum = facility.price_per_hour * Number(hour);
+  const facilityId = facility._id || facility.id;
+
+  const availableSlots = Array.isArray(facility.available_slots)
+    ? facility.available_slots
+    : [];
+
+  const pricePerHour = Number(facility.price_per_hour || 0);
+
+  const priceSum = pricePerHour * Number(hour || 0);
 
   const handleBookingSystem = (event) => {
     event.preventDefault();
+
     nothing("/login", {
       state: {
-        from: `/facility/${facility.id}`,
+        from: `/facility/${facilityId}`,
       },
     });
   };
 
   return (
     <main className="min-h-screen bg-background py-10">
-      <div className="mx-auto w-[calc(100%-2rem)] max-w-7xl">
+      <div className="mx-auto w-full px-4 sm:px-6">
         <Link
           to="/facilities"
           className="mb-7 inline-flex items-center gap-2 text-sm font-bold text-muted transition hover:text-primary"
@@ -99,21 +112,21 @@ const FacilityDetails = () => {
                   <Users size={21} className="text-primary" />
                   <p className="mt-3 text-sm text-muted ">Capacity</p>
                   <p className="mt-1 font-extrabold text-ink">
-                    {facility.capacity}players
+                    {facility.capacity} players
                   </p>
                 </div>
                 <div className="rounded-2xl border border-ink/10 bg-surface p-5">
                   <Clock size={21} className="text-primary" />
                   <p className="mt-3 text-sm text-muted">Available slots</p>
                   <p className="mt-1 font-extrabold text-ink">
-                    {facility.available_slots.length}daily
+                    {availableSlots.length}daily
                   </p>
                 </div>
                 <div className="rounded-2xl border border-ink/10 bg-surface p-5">
                   <Calendar size={21} className="text-primary" />
                   <p className="mt-3 text-sm text-muted">Bookings made</p>
                   <p className="mt-1 font-extrabold text-ink">
-                    {facility.booking_count}sessions
+                    {facility.booking_count || 0} sessions
                   </p>
                 </div>
               </div>
@@ -172,8 +185,10 @@ const FacilityDetails = () => {
                 >
                   Booking date
                 </label>
-                <div className="relative
-                ">
+                <div
+                  className="relative
+                "
+                >
                   <DatePicker
                     id="booking-date"
                     selected={bookingDate}
@@ -183,11 +198,14 @@ const FacilityDetails = () => {
                     required
                     showPopperArrow={false}
                     wrapperClassName="w-full"
-                    properClassName="z-50"
+                    popperClassName="z-50"
                     className="h-12 w-full rounded-xl border border-ink/10 bg-background px-4 text-muted outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                   />
-                 
-                    <Calendar size={19} className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-primary"/>
+
+                  <Calendar
+                    size={19}
+                    className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-primary"
+                  />
                 </div>
               </div>
               <div>
@@ -205,7 +223,7 @@ const FacilityDetails = () => {
                   className="h-12 w-full rounded-xl border border-ink/10 bg-background px-4 text-muted outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                 >
                   <option value="">Select a time slot</option>
-                  {facility.available_slots.map((slot) => (
+                  {availableSlots.map((slot) => (
                     <option key={slot} value={slot}>
                       {slot}
                     </option>

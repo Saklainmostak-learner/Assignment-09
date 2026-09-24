@@ -5,14 +5,13 @@ const API_URL = (
   "http://localhost:5000"
 ).replace(/\/$/, "");
 
-function useFacilities(searchField, selectedTypes) {
+function useFacilities(searchField = "", selectedType = []) {
   const [facilities, setFacilities] = useState([]);
-  const [facilityTypes, setFacilityTypes] =
-    useState([]);
+  const [facilityTypes, setFacilityTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Load unique sport types
+  // Load facility types
   useEffect(() => {
     const controller = new AbortController();
 
@@ -26,9 +25,7 @@ function useFacilities(searchField, selectedTypes) {
         );
 
         if (!response.ok) {
-          throw new Error(
-            "Could not load facility types"
-          );
+          throw new Error("Could not load facility types");
         }
 
         const data = await response.json();
@@ -53,45 +50,40 @@ function useFacilities(searchField, selectedTypes) {
     };
   }, []);
 
-  // Load facilities with search and filter
+  // Load all facilities
   useEffect(() => {
     const controller = new AbortController();
 
-    setLoading(true);
-    setError("");
-
     const timer = setTimeout(async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const query = new URLSearchParams();
 
-        const normalizedSearch =
-          searchField.trim();
-
-        if (normalizedSearch) {
-          query.set("search", normalizedSearch);
+        if (searchField.trim()) {
+          query.set("search", searchField.trim());
         }
 
-        if (selectedTypes.length > 0) {
-          query.set(
-            "sports",
-            selectedTypes.join(",")
-          );
+        if (
+          Array.isArray(selectedType) &&
+          selectedType.length > 0
+        ) {
+          query.set("sports", selectedType.join(","));
         }
 
         const queryString = query.toString();
 
-        const url = queryString
+        const requestURL = queryString
           ? `${API_URL}/api/facilities?${queryString}`
           : `${API_URL}/api/facilities`;
 
-        const response = await fetch(url, {
+        const response = await fetch(requestURL, {
           signal: controller.signal,
         });
 
         if (!response.ok) {
-          throw new Error(
-            "Could not load facilities"
-          );
+          throw new Error("Could not load facilities");
         }
 
         const data = await response.json();
@@ -106,9 +98,8 @@ function useFacilities(searchField, selectedTypes) {
             error
           );
 
-          setError(
-            "Facilities could not be loaded. Make sure the server is running."
-          );
+          setFacilities([]);
+          setError(error.message);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -121,7 +112,7 @@ function useFacilities(searchField, selectedTypes) {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [searchField, selectedTypes]);
+  }, [searchField, selectedType]);
 
   return {
     facilities,

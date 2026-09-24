@@ -1,9 +1,38 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
-import { featuredFacilities } from "../data/facilities";
+import useFacilities from "../hooks/useFacilities";
 import FacilityCard from "./FacilityCard";
+const EMPTY_SELECTED_TYPES=[];
 
 const FeatureFacilities = () => {
+  const {
+    facilities,
+    loading,
+    error,
+  } = useFacilities("", EMPTY_SELECTED_TYPES);
+
+  const featuredFacilities = facilities.slice(0, 6);
+
+  if (loading) {
+    return (
+      <section className="py-16 text-center">
+        <p className="font-semibold text-muted">
+          Loading featured facilities...
+        </p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-16 text-center">
+        <p className="font-semibold text-red-600">
+          {error}
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-white py-20">
       <div className="mx-auto w-[calc(100%-2rem)] max-w-7xl">
@@ -21,12 +50,13 @@ const FeatureFacilities = () => {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 xl:grid">
             {featuredFacilities.map((facility)=>(
-                <FacilityCard key={facility.id} facility={facility}/>
+                <FacilityCard key={facility._id || facility.id} facility={facility}/>
             ))}
         </div>
       </div>
     </section>
   );
 };
+
 
 export default FeatureFacilities;

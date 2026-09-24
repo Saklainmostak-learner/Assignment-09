@@ -8,10 +8,12 @@ const Facilities = () => {
   const [searchFiled, setSearchFiled] = useState("");
 
   const [selectedType, setSelectedType] = useState([]);
-  const { facilities, facilityTypes, loading, error } = useFacilities(
-    searchFiled,
-    selectedType,
-  );
+  const {
+    facilities = [],
+    facilityTypes = [],
+    loading = false,
+    error = "",
+  } = useFacilities(searchFiled, selectedType);
   const toggleSport = (sportType) => {
     setSelectedType((presentType) => {
       const isAlreadySelected = presentType.includes(sportType);
