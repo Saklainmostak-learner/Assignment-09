@@ -1,25 +1,68 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa6";
-import { Link } from "react-router";
-
+import { Link, useNavigate } from "react-router";
+import { authClient } from "../lib/auth-client";
 const useClass =
   "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-4 focus:ring-primary/10";
 
 const Login = () => {
   const [visiblePassword, setVisiblePassword] = useState(false);
 
-  const [warning, setWarning] = useState("");
+  const navigate = useNavigate();
 
-  function handleLogin(event) {
+  const [authError, setAuthError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleLogin = async (event) => {
     event.preventDefault();
-    //better auth will connect
-    setWarning("Sign-in is currently unavailable. Try later.");
-  }
+
+    const formData = new FormData(event.currentTarget);
+
+    const email = String(formData.get("email") || "").trim();
+
+    const password = String(formData.get("password") || "");
+
+    if (!email || !password) {
+      setAuthError("Please enter your email and password.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setAuthError("Password must contain at least 8 characters.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setAuthError("");
+
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe: true,
+      });
+
+      if (error) {
+        setAuthError(error.message || "Email or password is incorrect.");
+        return;
+      }
+
+      console.log("Logged-in user:", data);
+
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+
+      setAuthError("Could not connect to the authentication server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   function handleGoogle() {
     //google will connect
-    setWarning("Google sign-in is unavailable.");
+    setAuthError("Google sign-in is unavailable.");
   }
   return (
     <section className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-10 lg:grid-cols-2 lg:py-16">
@@ -69,7 +112,7 @@ const Login = () => {
         </div>
         <form
           onSubmit={handleLogin}
-          onChange={() => setWarning("")}
+          onChange={() => setAuthError("")}
           className="space-y-5"
         >
           <div>
@@ -124,22 +167,26 @@ const Login = () => {
           </div>
           <button
             type="submit"
+            disabled={isSubmitting}
             className="min-h-12 w-full bg-primary px-5 py-3 font-bold rounded-xl text-white transition hover:bg-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
           >
-            Login
+           {isSubmitting ? "Logging in..." : "Log in"}
           </button>
         </form>
-        {warning && (
+        {authError && (
           <p
             role="alert"
             className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
           >
-            {warning}
+            {authError}
           </p>
         )}
-        <p className="mt-7 text-center text-sm leading-6 text-muted">New to PlayGrid{" "}
-          <Link to="/register"
-          className="font-bold text-brand underline-offset-4 hover:underline">
+        <p className="mt-7 text-center text-sm leading-6 text-muted">
+          New to PlayGrid{" "}
+          <Link
+            to="/register"
+            className="font-bold text-brand underline-offset-4 hover:underline"
+          >
             Create an account
           </Link>
         </p>
