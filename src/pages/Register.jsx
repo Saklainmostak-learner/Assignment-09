@@ -1,54 +1,89 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa6";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { authClient } from "../lib/auth-client";
 
 const useClass =
   "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-brand focus:ring-4 focus:ring-brand/10";
-  
+
 const Register = () => {
   const [visiblePassword, setVisiblePassword] = useState(false);
-  const [warning, setWarning] = useState("");
+  const navigate = useNavigate();
 
-  function handleRegister(event) {
+  const [authError, setAuthError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function handleGoogleRegister() {
+    setAuthError("Google registration will be connected in a later step");
+  }
+  const handleRegister = async (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
 
-    const password = String(formData.get("password"));
-    const confirmPassword = String(formData.get("confirmPassword"));
+    const name = String(formData.get("name") || "").trim();
 
-    if (password.length < 6) {
-      setWarning("Password must contain at least 6 characters.");
+    const email = String(formData.get("email") || "").trim();
+
+    const photoURL = String(formData.get("photoURL") || "").trim();
+
+    const password = String(formData.get("password") || "");
+
+    const confirmPassword = String(formData.get("confirmPassword") || "");
+
+    if (!name || !email || !password) {
+      setAuthError("Please complete all required fields.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setAuthError("Password must contain at least 8 characters.");
       return;
     }
 
     if (!/[A-Z]/.test(password)) {
-      setWarning("Password must contain at least one uppercase letter.");
+      setAuthError("Password must contain at least one uppercase letter.");
       return;
     }
 
     if (!/[a-z]/.test(password)) {
-      setWarning("Password must contain at least one lowercase letter.");
+      setAuthError("Password must contain at least one lowercase letter.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setWarning("Password and confirm password do not match.");
+      setAuthError("Password and confirm password do not match.");
       return;
     }
 
-    // Better Auth registration will be connected here.
-    setWarning(
-      "Registration is currently unavailable. Authentication will be connected soon.",
-    );
-  }
+    try {
+      setIsSubmitting(true);
+      setAuthError("");
 
-  function handleGoogleRegister() {
-    // Google authentication will be connected here.
-    setWarning("Google registration is currently unavailable.");
-  }
+      const { data, error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        image: photoURL || undefined,
+      });
 
+      if (error) {
+        setAuthError(error.message || "Registration failed.");
+        return;
+      }
+
+      console.log("Registered user:", data);
+
+      navigate("/");
+    } catch (error) {
+      console.error("Registration failed:", error);
+
+      setAuthError("Could not connect to the authentication server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <section className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-16">
       <aside className="overflow-hidden rounded-3xl bg-ink p-7 text-white sm:p-10">
@@ -117,7 +152,7 @@ const Register = () => {
 
         <form
           onSubmit={handleRegister}
-          onChange={() => setWarning("")}
+          onChange={() => setAuthError("")}
           className="space-y-5"
         >
           <div>
@@ -212,7 +247,7 @@ const Register = () => {
             </div>
 
             <p className="mt-2 text-xs leading-5 text-muted">
-              Use at least 6 characters with uppercase and lowercase letters.
+              Use at least 8 characters with uppercase and lowercase letters.
             </p>
           </div>
 
@@ -238,17 +273,18 @@ const Register = () => {
           <button
             type="submit"
             className="min-h-12 w-full rounded-xl bg-primary px-5 py-3 font-bold text-white transition hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            disabled={isSubmitting}
           >
-            Create account
+            {isSubmitting ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        {warning && (
+        {authError && (
           <p
             role="alert"
             className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
           >
-            {warning}
+            {authError}
           </p>
         )}
 
