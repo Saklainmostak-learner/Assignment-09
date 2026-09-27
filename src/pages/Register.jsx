@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router";
 import { authClient } from "../lib/auth-client";
 
 const useClass =
-  "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-brand focus:ring-4 focus:ring-brand/10";
+  "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-4 focus:ring-primary/10";
 
 const Register = () => {
   const [visiblePassword, setVisiblePassword] = useState(false);
@@ -14,9 +14,19 @@ const Register = () => {
   const [authError, setAuthError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleGoogleRegister() {
-    setAuthError("Google registration will be connected in a later step");
-  }
+  const handleGoogleRegister = async () => {
+    try {
+      setAuthError("");
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: `${window.location.origin}/`,
+        errorCallbackURL: `${window.location.origin}/register`,
+      });
+    } catch (error) {
+      console.error("Google registration failed:", error);
+      setAuthError("Google sign-up could not be started.");
+    }
+  };
   const handleRegister = async (event) => {
     event.preventDefault();
 
@@ -37,8 +47,8 @@ const Register = () => {
       return;
     }
 
-    if (password.length < 8) {
-      setAuthError("Password must contain at least 8 characters.");
+    if (password.length < 6) {
+      setAuthError("Password must contain at least 6 characters.");
       return;
     }
 
@@ -61,7 +71,7 @@ const Register = () => {
       setIsSubmitting(true);
       setAuthError("");
 
-      const { data, error } = await authClient.signUp.email({
+      const { error } = await authClient.signUp.email({
         name,
         email,
         password,
@@ -72,8 +82,6 @@ const Register = () => {
         setAuthError(error.message || "Registration failed.");
         return;
       }
-
-      console.log("Registered user:", data);
 
       navigate("/login",{
         replace:true,
@@ -138,7 +146,7 @@ const Register = () => {
         <button
           type="button"
           onClick={handleGoogleRegister}
-          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 font-semibold text-ink transition hover:bg-canvas focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 font-semibold text-ink transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <FaGoogle aria-hidden="true" className="size-5" />
           Continue with Google
@@ -238,7 +246,7 @@ const Register = () => {
                   visiblePassword ? "Hide passwords" : "Show passwords"
                 }
                 aria-pressed={visiblePassword}
-                className="absolute inset-y-1 right-1 grid w-11 place-items-center rounded-lg text-muted hover:bg-background hover:text-ink focus-visible:outline-2 focus-visible:outline-brand"
+                className="absolute inset-y-1 right-1 grid w-11 place-items-center rounded-lg text-muted hover:bg-background hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
               >
                 {visiblePassword ? (
                   <EyeOff size={20} aria-hidden="true" />
@@ -249,7 +257,7 @@ const Register = () => {
             </div>
 
             <p className="mt-2 text-xs leading-5 text-muted">
-              Use at least 8 characters with uppercase and lowercase letters.
+              Use at least 6 characters with uppercase and lowercase letters.
             </p>
           </div>
 
@@ -274,7 +282,7 @@ const Register = () => {
 
           <button
             type="submit"
-            className="min-h-12 w-full rounded-xl bg-primary px-5 py-3 font-bold text-white transition hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+            className="min-h-12 w-full rounded-xl bg-primary px-5 py-3 font-bold text-white transition hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Creating account..." : "Create account"}
