@@ -31,8 +31,8 @@ const Login = () => {
       return;
     }
 
-    if (password.length < 8) {
-      setAuthError("Password must contain at least 8 characters.");
+    if (password.length < 6) {
+      setAuthError("Password must contain at least 6 characters.");
       return;
     }
 
@@ -40,7 +40,7 @@ const Login = () => {
       setIsSubmitting(true);
       setAuthError("");
 
-      const { data, error } = await authClient.signIn.email({
+      const { error } = await authClient.signIn.email({
         email,
         password,
         rememberMe: true,
@@ -51,9 +51,7 @@ const Login = () => {
         return;
       }
 
-      console.log("Logged-in user:", data);
-
-      navigate("/");
+      navigate(redirectPath, { replace: true });
     } catch (error) {
       console.error("Login failed:", error);
 
@@ -63,20 +61,29 @@ const Login = () => {
     }
   };
 
-  function handleGoogle() {
-    //google will connect
-    setAuthError("Google sign-in is unavailable.");
-  }
+  const handleGoogle = async () => {
+    try {
+      setAuthError("");
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: `${window.location.origin}${redirectPath}`,
+        errorCallbackURL: `${window.location.origin}/login`,
+      });
+    } catch (error) {
+      console.error("Google login failed:", error);
+      setAuthError("Google sign-in could not be started.");
+    }
+  };
   return (
     <section className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-10 sm:px-10 lg:grid-cols-2 lg:py-16">
       <aside className="overflow-hidden rounded-3xl bg-primary p-7 text-white sm:p-10">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
           Player Access
         </p>
-        <p className="mt-6 mx-w-sm text-4xl leading-tight font-black sm:text-5xl">
+        <p className="mt-6 max-w-sm text-4xl leading-tight font-black sm:text-5xl">
           Your next game starts here.
         </p>
-        <p className="mt-5 mx-w-sm leading-7 text-white/85">
+        <p className="mt-5 max-w-sm leading-7 text-white/85">
           Find a place to play, plan your next session, and keep your bookings
           together.
         </p>
@@ -85,14 +92,14 @@ const Login = () => {
           className="relative mt-10 hidden aspect-4/3 rounded-2xl border border-white/30 p-5 lg:block "
         >
           <div className="relative h-full rounded-xl border-2 border-white/50">
-            <div className="absolute inset-y-0 left-1/2 border-1-2 border-white/50"></div>
-            <div className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2rounded-full border-2 border-white/50"></div>
+            <div className="absolute inset-y-0 left-1/2 border-l-2 border-white/50"></div>
+            <div className="absolute top-1/2 left-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/50"></div>
           </div>
         </div>
       </aside>
       <div className="rounded-3xl border border-ink/10 bg-surface p-6 sm:p-10">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-          WelCome
+          Welcome
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-tight text-ink sm:text-4xl">
           Login to PlayGrid
@@ -103,7 +110,7 @@ const Login = () => {
         <button
           type="button"
           onClick={handleGoogle}
-          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 font-semibold text-semibold text-ink transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="mt-7 flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 font-semibold text-ink transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <FaGoogle aria-hidden="true" className="size-5" />
           Continue with Google
@@ -188,7 +195,7 @@ const Login = () => {
           New to PlayGrid{" "}
           <Link
             to="/register"
-            className="font-bold text-brand underline-offset-4 hover:underline"
+            className="font-bold text-primary underline-offset-4 hover:underline"
           >
             Create an account
           </Link>
