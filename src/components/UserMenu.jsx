@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { LogOut, User } from "lucide-react";
+import { BookmarkCheck, Building2, LogOut, PlusCircle } from "lucide-react";
 import { authClient } from "../lib/auth-client";
+import { API_URL } from "../lib/api";
 
-const UserMenu = () => {
+const UserMenu = ({ onNavigate }) => {
   const navigate = useNavigate();
 
   const [logoutError, setLogoutError] =
@@ -24,6 +25,11 @@ const UserMenu = () => {
       setIsLoggingOut(true);
       setLogoutError("");
 
+      await fetch(`${API_URL}/api/session/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
       const { error } = await authClient.signOut();
 
       if (error) {
@@ -33,7 +39,7 @@ const UserMenu = () => {
         return;
       }
 
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Logout failed:", error);
 
@@ -55,6 +61,7 @@ const UserMenu = () => {
     return (
       <Link
         to="/login"
+        onClick={onNavigate}
         className="inline-flex min-h-10 items-center justify-center rounded-xl bg-ink px-5 py-2 text-sm font-bold text-white transition hover:bg-primary"
       >
         Login
@@ -97,11 +104,30 @@ const UserMenu = () => {
         </div>
 
         <Link
-          to="/profile"
+          to="/my-bookings"
+          onClick={onNavigate}
           className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-ink transition hover:bg-background"
         >
-          <User size={17} />
-          Profile
+          <BookmarkCheck size={17} />
+          My Bookings
+        </Link>
+
+        <Link
+          to="/add-facility"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-ink transition hover:bg-background"
+        >
+          <PlusCircle size={17} />
+          Add Facility
+        </Link>
+
+        <Link
+          to="/manage-facilities"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-ink transition hover:bg-background"
+        >
+          <Building2 size={17} />
+          Manage My Facilities
         </Link>
 
         <button
