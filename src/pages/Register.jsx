@@ -75,7 +75,9 @@ const Register = () => {
 
       console.log("Registered user:", data);
 
-      navigate("/");
+      navigate("/login",{
+        replace:true,
+      });
     } catch (error) {
       console.error("Registration failed:", error);
 

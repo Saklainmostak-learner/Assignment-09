@@ -36,14 +36,14 @@ const BookingFunctionality = () => {
               How it works
             </span>
             <h2 className="mt-3 text-4xl font-black tracking-[-2px] text-ink sm:text-5xl">
-              Form search to game time in three moves
+              From search to game time in three moves
             </h2>
             <p className="mt-5 max-w-xl leading-7 text-muted">
               PlayGrid keeps the booking journey clear so players can spend less
               time coordinating and more time playing.
             </p>
             <Link
-              to="facilities"
+              to="/facilities"
               className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-bold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-primary-dark"
             >
               Start exploring
@@ -104,8 +104,8 @@ const BookingFunctionality = () => {
             <p className="text-xs font-bold tracking-[0.2em] text-accent uppercase">
               For facility owners
             </p>
-            <h3 className="mt-3 max-w2xl text-2xl font-black text-white sm:text-3xl">Turn available playing hours into organized booking</h3>
-            <p className="mt-4 max-w-2xl leading-7 text-white">Add your facility, publish available slots and mange every listing form one focused workspace.</p>
+            <h3 className="mt-3 max-w-2xl text-2xl font-black text-white sm:text-3xl">Turn available playing hours into organized booking</h3>
+            <p className="mt-4 max-w-2xl leading-7 text-white">Add your facility, publish available slots and manage every listing from one focused workspace.</p>
           </div>
           <div className="flex items-center border-t border-white/10 p-7 lg:border-t-0 lg:border-l">
           <Link to="/login" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-bold text-ink transition hover:bg-accent hover:text-white lg:w-auto">

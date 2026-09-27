@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { Suspense } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Register from "./pages/Register";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (

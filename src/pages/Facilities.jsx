@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import FacilityCard from "../components/FacilityCard";
 
 const Facilities = () => {
-  const [searchFiled, setSearchFiled] = useState("");
+  const [searchField, setSearchField] = useState("");
 
   const [selectedType, setSelectedType] = useState([]);
   const {
@@ -13,7 +13,7 @@ const Facilities = () => {
     facilityTypes = [],
     loading = false,
     error = "",
-  } = useFacilities(searchFiled, selectedType);
+  } = useFacilities(searchField, selectedType);
   const toggleSport = (sportType) => {
     setSelectedType((presentType) => {
       const isAlreadySelected = presentType.includes(sportType);
@@ -25,11 +25,11 @@ const Facilities = () => {
     });
   };
   const clearFilters = () => {
-    setSearchFiled("");
+    setSearchField("");
     setSelectedType([]);
   };
 
-  const isActiveFilter = searchFiled.trim() !== "" || selectedType.length > 0;
+  const isActiveFilter = searchField.trim() !== "" || selectedType.length > 0;
 
   if (loading && facilities.length === 0) {
     return <LoadingSpinner message="Finding available playing spaces..." />;
@@ -83,8 +83,8 @@ const Facilities = () => {
               />
               <input
                 type="search"
-                value={searchFiled}
-                onChange={(event) => setSearchFiled(event.target.value)}
+                value={searchField}
+                onChange={(event) => setSearchField(event.target.value)}
                 placeholder="Search facility..."
                 aria-label="Search facilities by name"
                 className="h-12 w-full rounded-xl border border-ink/15 bg-white pr-4 pl-12 text-ink outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-4 focus:ring-primary/10"

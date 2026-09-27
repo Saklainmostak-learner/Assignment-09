@@ -1,7 +1,7 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { authClient } from "../lib/auth-client";
 const useClass =
   "h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-ink outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-4 focus:ring-primary/10";
@@ -10,6 +10,9 @@ const Login = () => {
   const [visiblePassword, setVisiblePassword] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectPath = location.state?.from || "/";
 
   const [authError, setAuthError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,7 +173,7 @@ const Login = () => {
             disabled={isSubmitting}
             className="min-h-12 w-full bg-primary px-5 py-3 font-bold rounded-xl text-white transition hover:bg-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
           >
-           {isSubmitting ? "Logging in..." : "Log in"}
+            {isSubmitting ? "Logging in..." : "Log in"}
           </button>
         </form>
         {authError && (
