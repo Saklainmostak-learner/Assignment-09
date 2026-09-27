@@ -1,14 +1,13 @@
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import useFacility from "../hooks/useFacility";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ArrowLeft, Calendar, Clock, MapPin, Users } from "lucide-react";
+import { apiRequest } from "../lib/api";
 
 const FacilityDetails = () => {
-  const nothing = useNavigate();
-
   const { id } = useParams();
 
   const { facility, loading, error } = useFacility(id);
@@ -18,6 +17,10 @@ const FacilityDetails = () => {
   const [timeFormat, setTimeFormat] = useState("");
 
   const [hour, setHour] = useState(1);
+
+  const [bookingError, setBookingError] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
 
   if (loading) {
     return <LoadingSpinner message="Preparing facility details..." />;
@@ -56,14 +59,40 @@ const FacilityDetails = () => {
 
   const priceSum = pricePerHour * Number(hour || 0);
 
-  const handleBookingSystem = (event) => {
+  const handleBookingSystem = async (event) => {
     event.preventDefault();
 
-    nothing("/login", {
-      state: {
-        from: `/facility/${facilityId}`,
-      },
-    });
+    if (!bookingDate || !timeFormat) {
+      setBookingError("Choose a booking date and time slot.");
+      return;
+    }
+
+    const year = bookingDate.getFullYear();
+    const month = String(bookingDate.getMonth() + 1).padStart(2, "0");
+    const day = String(bookingDate.getDate()).padStart(2, "0");
+
+    try {
+      setIsBooking(true);
+      setBookingError("");
+      setBookingSuccess("");
+      const result = await apiRequest("/api/bookings", {
+        method: "POST",
+        body: JSON.stringify({
+          facilityId,
+          bookingDate: `${year}-${month}-${day}`,
+          timeSlot: timeFormat,
+          hours: Number(hour),
+        }),
+      });
+      setBookingSuccess(result.message);
+      setBookingDate(null);
+      setTimeFormat("");
+      setHour(1);
+    } catch (requestError) {
+      setBookingError(requestError.message);
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -119,7 +148,7 @@ const FacilityDetails = () => {
                   <Clock size={21} className="text-primary" />
                   <p className="mt-3 text-sm text-muted">Available slots</p>
                   <p className="mt-1 font-extrabold text-ink">
-                    {availableSlots.length}daily
+                    {availableSlots.length} daily
                   </p>
                 </div>
                 <div className="rounded-2xl border border-ink/10 bg-surface p-5">
@@ -143,7 +172,7 @@ const FacilityDetails = () => {
                   About time slots
                 </h2>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  {facility.available_slots.map((slot) => (
+                  {availableSlots.map((slot) => (
                     <span
                       key={slot}
                       className="rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold text-primary"
@@ -156,7 +185,7 @@ const FacilityDetails = () => {
             </div>
           </section>
           <aside className="rounded-3xl border border-ink/10 bg-surface p-6 shadow-xl shadow-primary/5 lg:sticky lg:top-24">
-            <p className="text-xs font-bold tracking-[0.18em] text-brand uppercase">
+            <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
               Reserve your session
             </p>
             <h2 className="mt-2 text-2xl font-black text-ink">
@@ -252,14 +281,28 @@ const FacilityDetails = () => {
                 <span className="text-sm text-white/65">Total price</span>
                 <strong>৳{priceSum}</strong>
               </div>
+              {bookingError && (
+                <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                  {bookingError}
+                </p>
+              )}
+              {bookingSuccess && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  <p>{bookingSuccess}</p>
+                  <Link to="/my-bookings" className="mt-1 inline-block font-bold underline">
+                    View My Bookings
+                  </Link>
+                </div>
+              )}
               <button
                 type="submit"
+                disabled={isBooking}
                 className="w-full rounded-xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-primary-dark"
               >
-                Continue to Login
+                {isBooking ? "Confirming booking..." : "Confirm booking"}
               </button>
               <p className="text-center text-xs leading-5 text-muted">
-                Authentication is required before confirming a booking.
+                Your booking will be saved with pending status.
               </p>
             </form>
           </aside>
