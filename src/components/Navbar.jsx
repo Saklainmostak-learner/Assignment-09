@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import UserMenu from "./UserMenu";
+import { authClient } from "../lib/auth-client";
 
 const menuItems = [
   { label: "Home", path: "/" },
@@ -9,6 +10,15 @@ const menuItems = [
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session } = authClient.useSession();
+
+  const privateMenuItems = session?.user
+    ? [
+        { label: "My Bookings", path: "/my-bookings" },
+        { label: "Add Facility", path: "/add-facility" },
+        { label: "Manage Facilities", path: "/manage-facilities" },
+      ]
+    : [];
 
   const getNavLinkStyle = ({ isActive }) => {
     return [
@@ -43,7 +53,7 @@ const Navbar = () => {
           type="button"
           className="grid size-10 place-content-center rounded-lg border border-black/15 bg-surface md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-level="Toggle navigation menu"
+          aria-label="Toggle navigation menu"
           aria-expanded={isMenuOpen}
         >
           <span className="my-0.5 block h-0.5 w-5 rounded-full bg-ink"></span>
@@ -60,7 +70,7 @@ const Navbar = () => {
             isMenuOpen ? "flex" : "hidden",
           ].join(" ")}
         >
-          {menuItems.map((item) => (
+          {[...menuItems, ...privateMenuItems].map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -71,7 +81,7 @@ const Navbar = () => {
               {item.label}
             </NavLink>
           ))}
-          <UserMenu />
+          <UserMenu onNavigate={closeMenu} />
         </nav>
       </div>
     </header>
